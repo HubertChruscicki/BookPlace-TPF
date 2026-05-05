@@ -24,7 +24,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   }
 
   if (allowedRoles && allowedRoles.length > 0) {
-    const hasRequiredRole = user.roles.some((role) => allowedRoles.includes(role));
+    const normalizedAllowed = allowedRoles.map((role) => role.toUpperCase());
+    const hasRequiredRole = user.roles.some((role) =>
+      normalizedAllowed.includes(role.toUpperCase()),
+    );
     if (!hasRequiredRole) {
       return <Navigate to="/" replace />;
     }
@@ -34,4 +37,3 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
 };
 
 export default ProtectedRoute;
-

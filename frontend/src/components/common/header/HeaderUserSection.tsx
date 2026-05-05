@@ -1,13 +1,15 @@
 ﻿import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Avatar } from '@mui/material';
 import { useAuth } from '../../../hooks/useAuth';
 import AuthModal from '../../features/auth/AuthModal';
+import UserMenu from '../UserMenu';
 import { UserButton, SignInButton, SignUpButton } from './Header.styles';
 
 const HeaderUserSection: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(null);
 
   const handleSignInClick = () => {
     setAuthModalMode('login');
@@ -23,15 +25,36 @@ const HeaderUserSection: React.FC = () => {
     setAuthModalOpen(false);
   };
 
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const userInitials = user
+    ? `${user.name?.charAt(0) || ''}${user.surname?.charAt(0) || ''}`.trim() || 'U'
+    : 'U';
+
   return (
     <>
       {isAuthenticated && user ? (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <UserButton variant="outlined">{user.name || user.email}</UserButton>
-          <SignUpButton variant="outlined" onClick={logout}>
-            Logout
-          </SignUpButton>
-        </Box>
+        <>
+          <UserButton
+            variant="outlined"
+            onClick={handleUserMenuOpen}
+            startIcon={<Avatar sx={{ width: 28, height: 28 }}>{userInitials}</Avatar>}
+          >
+            {user.name} {user.surname}
+          </UserButton>
+          <UserMenu
+            user={user}
+            anchorEl={userMenuAnchor}
+            open={Boolean(userMenuAnchor)}
+            onClose={handleUserMenuClose}
+          />
+        </>
       ) : (
         <Box sx={{ display: 'flex', gap: 1 }}>
           <SignInButton variant="contained" onClick={handleSignInClick}>
@@ -55,4 +78,3 @@ const HeaderUserSection: React.FC = () => {
 };
 
 export default HeaderUserSection;
-
