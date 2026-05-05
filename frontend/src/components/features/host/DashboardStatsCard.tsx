@@ -42,7 +42,7 @@ export default function DashboardStatsCard({
                 borderRadius: 4,
                 background: styles.grad,
                 color: '#fff',
-                height: '180px',
+                height: '200px',
                 position: 'relative',
                 transition: 'transform 0.2s',
                 '&:hover': { transform: 'scale(1.02)' },
