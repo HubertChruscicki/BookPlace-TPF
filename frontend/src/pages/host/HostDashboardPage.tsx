@@ -13,7 +13,7 @@ export default function HostDashboardPage() {
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Box mb={4}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
                     Welcome back, Sarah
                 </Typography>
                 <Typography color="text.secondary">
