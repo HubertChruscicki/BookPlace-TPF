@@ -1,0 +1,245 @@
+﻿import React from 'react';
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Rating,
+  Chip,
+} from '@mui/material';
+import { LocationOn, People, Hotel, Bathtub } from '@mui/icons-material';
+import type { OfferSummary } from '../../models/OfferModels';
+import { theme } from '../../theme';
+import { useNavigate } from 'react-router-dom';
+
+interface OfferCardProps {
+  offer: OfferSummary;
+  checkInDate?: string;
+  checkOutDate?: string;
+  guests?: number;
+}
+
+export const OfferCard: React.FC<OfferCardProps> = ({
+  offer,
+  checkInDate,
+  checkOutDate,
+  guests,
+}) => {
+  const navigate = useNavigate();
+
+  const handleBookNow = () => {
+    const queryParams = new URLSearchParams();
+
+    if (checkInDate) {
+      queryParams.set('CheckInDate', checkInDate);
+    }
+    if (checkOutDate) {
+      queryParams.set('CheckOutDate', checkOutDate);
+    }
+    if (guests !== undefined) {
+      queryParams.set('Guests', guests.toString());
+    }
+
+    const queryString = queryParams.toString();
+    navigate(queryString ? `/offer/${offer.id}?${queryString}` : `/offer/${offer.id}`);
+  };
+
+  const getImageUrl = () => {
+    if (offer.coverPhoto?.thumbnailUrl) return offer.coverPhoto.thumbnailUrl;
+    if (offer.coverPhoto?.mediumUrl) return offer.coverPhoto.mediumUrl;
+    if (offer.coverPhoto?.originalUrl) return offer.coverPhoto.originalUrl;
+    return 'https://via.placeholder.com/400x200?text=No+Image';
+  };
+
+  const averageRating = 4.5;
+
+  return (
+    <Card
+      sx={{
+        width: '100%',
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 3,
+        boxShadow: 3,
+        transition: 'all 0.3s ease',
+        height: '100%',
+        '&:hover': {
+          boxShadow: 8,
+          transform: 'translateY(-4px)',
+        },
+      }}
+    >
+      <Box sx={{ position: 'relative', flexShrink: 0 }}>
+        <CardMedia
+          component="img"
+          height="180"
+          image={getImageUrl()}
+          alt={offer.title}
+          sx={{
+            objectFit: 'cover',
+            borderRadius: '12px 12px 0 0',
+          }}
+        />
+
+        <Box sx={{ position: 'absolute', top: 12, left: 12 }}>
+          <Chip
+            label={offer.offerType.name}
+            size="small"
+            sx={{
+              pointerEvents: 'none',
+              textTransform: 'none',
+              borderRadius: 25,
+              fontWeight: 700,
+              padding: '4px 12px',
+              minWidth: 'auto',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              color: theme.palette.primary.main,
+              fontSize: '0.75rem',
+              height: '28px',
+              boxShadow: 1,
+            }}
+          />
+        </Box>
+      </Box>
+
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Rating
+              name="read-only"
+              value={averageRating}
+              precision={0.5}
+              readOnly
+              size="small"
+              sx={{ color: '#faaf00' }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              {averageRating.toFixed(1)}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography
+          variant="h6"
+          component="h3"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            fontSize: '1.15rem',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            mb: 1,
+          }}
+        >
+          {offer.title}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            fontWeight: 600,
+            color: 'text.primary',
+            mb: 1,
+          }}
+        >
+          <LocationOn sx={{ fontSize: 18, color: 'primary.main' }} />
+          {offer.addressCity}, {offer.addressCountry}
+        </Typography>
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+            flexWrap: 'wrap',
+            py: 1,
+            borderTop: '1px solid transparent',
+            borderBottom: '1px solid transparent',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <People sx={{ fontSize: 18, color: 'text.secondary' }} />
+            <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+              {offer.maxGuests} Guests
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Hotel sx={{ fontSize: 18, color: 'text.secondary' }} />
+            <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+              {offer.rooms} Rooms
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Bathtub sx={{ fontSize: 18, color: 'text.secondary' }} />
+            <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+              {offer.bathrooms} Baths
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mt: 'auto',
+            pt: 1,
+          }}
+        >
+          <Box>
+            <Typography
+              variant="h5"
+              component="span"
+              sx={{ fontWeight: 700, color: theme.palette.primary.dark }}
+            >
+              ${offer.pricePerNight.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 0.5 }}>
+              / night
+            </Typography>
+          </Box>
+
+          <Button
+            variant="contained"
+            color="primary"
+            size="medium"
+            onClick={handleBookNow}
+            sx={{
+              borderRadius: 25,
+              px: 3,
+              fontWeight: 700,
+            }}
+          >
+            Book Now
+          </Button>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default OfferCard;
+
