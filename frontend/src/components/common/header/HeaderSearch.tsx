@@ -33,7 +33,16 @@ const HeaderSearch = () => {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    navigate('/search');
+    const params = new URLSearchParams();
+
+    if (selectedLocation) params.set('City', selectedLocation);
+    if (guests) params.set('Guests', guests);
+
+    params.set('PageNumber', '1');
+    params.set('PageSize', '12');
+
+    const query = params.toString();
+    navigate(query ? `/search?${query}` : '/search');
   };
 
   const datePickerTextFieldProps = (label: string): TextFieldProps => ({
