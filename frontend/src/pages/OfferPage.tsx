@@ -8,6 +8,8 @@ import OfferInfoSection from '../components/features/offer/OfferInfoSection';
 import OfferAmenitiesSection from '../components/features/offer/OfferAmenitiesSection';
 import OfferMapSection from '../components/features/offer/OfferMapSection';
 import OfferDescriptionSection from '../components/features/offer/OfferDescriptionSection';
+import OfferBookingCard from '../components/features/offer/OfferBookingCard';
+import OfferReviewsSection from '../components/features/offer/OfferReviewsSection';
 
 const OfferPage: React.FC = () => {
   const { offerId } = useParams<{ offerId: string }>();
@@ -51,30 +53,18 @@ const OfferPage: React.FC = () => {
             city={offer.addressCity}
             country={offer.addressCountry}
           />
+          <Divider />
+
+          <OfferReviewsSection offer={offer} />
         </Grid>
 
         <Grid size={{ xs: 12, md: 5, lg: 4 }}>
           <Box sx={{ position: 'sticky', top: 100 }}>
-            {/* OfferBookingCard wired up in next commit */}
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 6,
-                border: '1px solid',
-                borderColor: 'divider',
-                textAlign: 'center',
-              }}
-            >
-              <Typography variant="h5" fontWeight={700} gutterBottom>
-                ${offer.pricePerNight}{' '}
-                <Typography component="span" color="text.secondary">
-                  / night
-                </Typography>
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Booking flow coming up next.
-              </Typography>
-            </Box>
+            <OfferBookingCard
+              pricePerNight={offer.pricePerNight}
+              maxGuests={offer.maxGuests}
+              offerId={offer.id}
+            />
           </Box>
         </Grid>
       </Grid>
