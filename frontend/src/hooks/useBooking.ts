@@ -19,7 +19,6 @@ export const useCreateBooking = (): MockMutationResult<CreateBookingPayload> & {
       // simulate a short network round-trip so the UI shows the loading state
       setTimeout(() => {
         setIsPending(false);
-        // eslint-disable-next-line no-console
         console.info('[mock] createBooking called with', payload);
         callbacks?.onSuccess?.();
       }, 400);

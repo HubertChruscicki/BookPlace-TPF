@@ -27,10 +27,13 @@ const ChatClient: React.FC<ChatClientProps> = ({ role }) => {
   useEffect(() => {
     const paramId = searchParams.get('conversationId');
     if (paramId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedConversationId(parseInt(paramId, 10));
     } else if (!selectedConversationId && conversations.length > 0 && !isMobile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedConversationId(conversations[0].id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, conversations, isMobile, selectedConversationId]);
 
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId);

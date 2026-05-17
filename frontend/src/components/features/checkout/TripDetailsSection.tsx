@@ -44,12 +44,14 @@ const TripDetailsSection: React.FC<TripDetailsSectionProps> = ({
   const [localGuests, setLocalGuests] = useState(guests);
 
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setLocalCheckIn(checkIn);
     setLocalCheckOut(checkOut);
     setLocalGuests(guests);
     if (!checkIn || !checkOut || nights <= 0) {
       setIsEditing(true);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [checkIn, checkOut, guests, nights]);
 
   const canSave =

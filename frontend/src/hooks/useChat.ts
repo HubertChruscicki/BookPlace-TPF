@@ -29,10 +29,8 @@ const notify = () => {
 };
 const getSnapshot = () => version;
 
-const remapSenderIds = <T extends { senderId: string }>(items: T[], realId: string | undefined): T[] => {
-  if (!realId) return items;
-  return items.map((m) => (m.senderId === ME_PLACEHOLDER ? { ...m, senderId: realId } : m));
-};
+const remapMessageSenderId = (msg: ChatMessage, realId: string | undefined): ChatMessage =>
+  realId && msg.senderId === ME_PLACEHOLDER ? { ...msg, senderId: realId } : msg;
 
 export interface UseConversationsResult {
   data?: PagedResult<ConversationSummary>;
@@ -46,15 +44,10 @@ export const useConversations = (params: GetConversationsParams): UseConversatio
   const { PageNumber = 1, PageSize = 20 } = params;
 
   return useMemo(() => {
-    const items = remapSenderIds(conversationsState.map((c) => ({
+    const items = conversationsState.map((c) => ({
       ...c,
-      lastMessage: { ...c.lastMessage },
-    })), user?.id).map((conv) => {
-      if (user?.id && conv.lastMessage.senderId === ME_PLACEHOLDER) {
-        conv.lastMessage.senderId = user.id;
-      }
-      return conv;
-    });
+      lastMessage: remapMessageSenderId(c.lastMessage, user?.id),
+    }));
     const sorted = items.sort(
       (a, b) => new Date(b.lastMessage.sentAt).getTime() - new Date(a.lastMessage.sentAt).getTime()
     );
@@ -90,7 +83,7 @@ export const useChatMessages = (
   const { PageNumber = 1, PageSize = 50 } = params;
 
   return useMemo(() => {
-    const all = remapSenderIds(messagesState[conversationId] ?? [], user?.id);
+    const all = (messagesState[conversationId] ?? []).map((m) => remapMessageSenderId(m, user?.id));
     const sorted = [...all].sort(
       (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );

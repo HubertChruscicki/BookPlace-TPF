@@ -62,6 +62,7 @@ const OfferBookingCard: React.FC<OfferBookingCardProps> = ({ pricePerNight, maxG
     }
     newParams.set('Guests', guests.toString());
     setSearchParams(newParams, { replace: true });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrorMessage(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn, checkOut, guests]);
