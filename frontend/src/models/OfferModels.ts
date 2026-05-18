@@ -42,6 +42,32 @@ export interface OfferSummary {
   updatedAt: string;
 }
 
+import type { OfferHost } from './HostModel';
+
+export interface OfferDetail {
+  id: number;
+  title: string;
+  description: string;
+  pricePerNight: number;
+  maxGuests: number;
+  rooms: number;
+  bathrooms: number;
+  singleBeds: number;
+  doubleBeds: number;
+  sofas?: number;
+  addressCity: string;
+  addressCountry: string;
+  addressLatitude: number;
+  addressLongitude: number;
+  fullAddress: string;
+  amenities: Amenity[];
+  photos: OfferPhoto[];
+  offerType?: OfferType;
+  rating?: number;
+  reviewsCount?: number;
+  host?: OfferHost;
+}
+
 // @ts-ignore: TypeScript enum compatibility issue with erasableSyntaxOnly
 export enum OfferSortBy {
   PriceAsc = 0,

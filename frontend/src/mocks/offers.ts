@@ -1,4 +1,5 @@
-﻿import type { Amenity, OfferPhoto, OfferSummary, OfferType } from '../models/OfferModels';
+﻿import type { Amenity, OfferDetail, OfferPhoto, OfferSummary, OfferType } from '../models/OfferModels';
+import type { OfferHost } from '../models/HostModel';
 
 const buildPhoto = (id: number, folder: string, baseName: string): OfferPhoto => {
   const basePath = `../assets/mockPhotos/offers/${folder}/${baseName}`;
@@ -298,4 +299,157 @@ export const mockOffers: OfferSummary[] = [
     updatedAt: nowIso,
   },
 ];
+
+// --- OfferDetail mocks ---
+// Photos are resolved at build time via Vite's import.meta.glob so we don't
+// have to hardcode the long timestamped filenames per offer.
+
+const originalUrlByPath = import.meta.glob<string>(
+  '../assets/mockPhotos/offers/*/*_original.jpg',
+  { eager: true, query: '?url', import: 'default' }
+);
+const mediumUrlByPath = import.meta.glob<string>(
+  '../assets/mockPhotos/offers/*/*_medium.jpg',
+  { eager: true, query: '?url', import: 'default' }
+);
+const thumbUrlByPath = import.meta.glob<string>(
+  '../assets/mockPhotos/offers/*/*_thumb.jpg',
+  { eager: true, query: '?url', import: 'default' }
+);
+
+interface ResolvedPhoto {
+  base: string;
+  original: string;
+  medium: string;
+  thumb: string;
+}
+
+const resolvePhotosForFolder = (folder: string): ResolvedPhoto[] => {
+  const prefix = `../assets/mockPhotos/offers/${folder}/`;
+  const result: ResolvedPhoto[] = [];
+  for (const path of Object.keys(originalUrlByPath)) {
+    if (!path.startsWith(prefix)) continue;
+    const base = path.slice(prefix.length).replace('_original.jpg', '');
+    const mediumPath = `${prefix}${base}_medium.jpg`;
+    const thumbPath = `${prefix}${base}_thumb.jpg`;
+    result.push({
+      base,
+      original: originalUrlByPath[path],
+      medium: mediumUrlByPath[mediumPath] ?? originalUrlByPath[path],
+      thumb: thumbUrlByPath[thumbPath] ?? originalUrlByPath[path],
+    });
+  }
+  return result.sort((a, b) => a.base.localeCompare(b.base));
+};
+
+const buildPhotosForOffer = (offerIdSeed: number, folder: string): OfferPhoto[] => {
+  const resolved = resolvePhotosForFolder(folder);
+  return resolved.map((photo, index) => ({
+    id: offerIdSeed * 100 + index,
+    originalUrl: photo.original,
+    mediumUrl: photo.medium,
+    thumbnailUrl: photo.thumb,
+    isCover: index === 0,
+    sortOrder: index,
+  }));
+};
+
+const OFFER_HOSTS: Record<number, OfferHost> = {
+  1: { id: 1, name: 'Anna Kowalska', avatarUrl: 'https://i.pravatar.cc/120?img=47' },
+  2: { id: 2, name: 'Tomasz Nowak', avatarUrl: 'https://i.pravatar.cc/120?img=12' },
+  3: { id: 3, name: 'Magdalena Wiśniewska', avatarUrl: 'https://i.pravatar.cc/120?img=32' },
+  4: { id: 4, name: 'Piotr Lewandowski', avatarUrl: 'https://i.pravatar.cc/120?img=15' },
+  5: { id: 5, name: 'Karolina Dąbrowska', avatarUrl: 'https://i.pravatar.cc/120?img=49' },
+  6: { id: 6, name: 'Marcin Wójcik', avatarUrl: 'https://i.pravatar.cc/120?img=18' },
+  7: { id: 7, name: 'Joanna Kamińska', avatarUrl: 'https://i.pravatar.cc/120?img=44' },
+  8: { id: 8, name: 'Adam Zieliński', avatarUrl: 'https://i.pravatar.cc/120?img=22' },
+  9: { id: 9, name: 'Ewa Szymańska', avatarUrl: 'https://i.pravatar.cc/120?img=38' },
+  10: { id: 10, name: 'Krzysztof Woźniak', avatarUrl: 'https://i.pravatar.cc/120?img=8' },
+  11: { id: 11, name: 'Natalia Kozłowska', avatarUrl: 'https://i.pravatar.cc/120?img=41' },
+};
+
+const OFFER_DESCRIPTIONS: Record<number, string> = {
+  1: `Welcome to my modern studio in the heart of Warsaw. The space has been carefully designed to combine functionality with a calm, contemporary aesthetic — perfect for solo travellers and couples alike.
+
+You will love the panoramic city view from the floor-to-ceiling windows, the cozy reading nook, and the fully equipped kitchenette. The bed is dressed with premium cotton linens and the bathroom features a rain shower and a curated selection of organic toiletries.
+
+The apartment is located a short tram ride from the Old Town, with countless cafés, restaurants and museums just outside the door. High-speed Wi-Fi and a dedicated workspace make it equally suitable for digital nomads who want to keep working between sightseeing sessions.`,
+  2: `Charming apartment just steps from Krakow's Main Square. Two bright bedrooms, a fully equipped kitchen and a living room with original wooden beams make this stay feel like a true home in the historic centre.
+
+Wake up to the sound of horse-drawn carriages, grab a coffee from the bakery downstairs and explore Wawel Castle, the Cloth Hall and the Jewish Quarter — all within a 10 minute walk.
+
+The building has a quiet courtyard so you can rest properly after a long day of sightseeing. We provide an espresso machine, board games and a small library of guidebooks to help you get the most out of your visit.`,
+  3: `Spacious family house with a private garden, ideal for travellers with kids. The fenced backyard has a trampoline, a sandpit and a covered terrace with a barbecue.
+
+The interior offers three comfortable bedrooms, two bathrooms and a large open-plan kitchen-diner. We added a baby crib, a high chair and a small play corner free of charge — just let us know in advance and everything will be ready upon arrival.
+
+Gdańsk's old town and the beach are a quick tram ride away, but you might also love the long walks around the nearby Oliwa Park and Zoo.`,
+  4: `Stylish loft in the centre of Wrocław with exposed brick walls, designer furniture and a vinyl record collection ready for you to enjoy.
+
+The mezzanine bedroom overlooks the open-plan living room, where you'll find a king-size sofa bed, a smart TV with Netflix, and a small bar with locally sourced craft beers (yes, the first round is on us).
+
+You're a short stroll from the Market Square, the Rynek dwarves and dozens of restaurants serving everything from pierogi to ramen.`,
+  5: `A quiet wooden cabin by the lake — your perfect digital detox. Wake up to birdsong, enjoy your morning coffee on the porch and spend the day paddling, hiking or simply reading under the trees.
+
+The cabin sleeps up to five guests in two bedrooms plus a sofa bed in the living area. The wood-burning stove keeps everything warm and cozy when the evenings get chilly.
+
+We provide kayaks, fishing rods and a small library of board games. The nearest village (15 minutes by car) has a supermarket, a bakery and two restaurants.`,
+  6: `Business-friendly stay in Poznań's tech district. The apartment was designed for travelling professionals: a proper ergonomic workspace, fibre internet, a Herman Miller chair and a second monitor are all included.
+
+In the evening you can unwind in the rainforest shower, prepare dinner in the fully equipped kitchen or head out to the buzzing restaurant scene that surrounds the building.
+
+We offer self check-in via a smart lock and a flexible cancellation policy — perfect for business trips that change at the last minute.`,
+  7: `Charming family house next to a beautiful city park. Three bedrooms, two bathrooms and a sunny patio make this an excellent base for groups of friends or two families travelling together.
+
+The kitchen is fully stocked, the dining table seats eight comfortably and the living room features a large smart TV with international streaming services.
+
+Bikes are available free of charge — Lublin's old town is just a 15 minute ride along a dedicated bike path.`,
+  8: `A minimalist apartment in Gdynia, just a few minutes from the seaside boulevard. Clean Scandinavian design, lots of natural light and a smart layout that maximises every square metre.
+
+The bedroom has blackout curtains for great sleep, the bathroom is finished with high-end ceramics and the kitchen has everything you need to cook for two or three guests.
+
+You'll love the morning runs along the coast and the freshly grilled fish at the marina restaurants.`,
+  9: `Comfortable hotel-style room in Katowice. Perfect for a short business trip or a quick city break — clean, quiet and centrally located.
+
+We provide a daily housekeeping service, fresh towels every day and a complimentary breakfast in the lobby café (croissants, granola, fresh fruit and barista-made coffee).
+
+The new Spodek arena, the Silesian Museum and the central train station are all within a 10 minute walk.`,
+  10: `Luxury apartment on the 24th floor with a spacious balcony overlooking Warsaw's skyline. Floor-to-ceiling windows, marble bathroom, walk-in wardrobe and a designer kitchen with a Miele espresso machine.
+
+The building offers 24/7 concierge, a fitness centre, a 25-metre pool and a spa with sauna and steam room — all free for guests.
+
+Whether you're here for business or for a special weekend, this apartment provides a level of comfort that's hard to match.`,
+  11: `Lakeview cabin retreat in the Masurian Lake District. Surrounded by pine forest, with a private pier just steps from the front door — the perfect place to unplug and reconnect with nature.
+
+The cabin features two bedrooms, a sofa bed in the living room, a fully equipped kitchen and a wood-fired sauna. Outside you'll find a fire pit, a hammock and a small motorboat that comes with the rental.
+
+We provide everything you might need for a successful trip: fishing gear, kayaks, board games and detailed maps of nearby hiking trails.`,
+};
+
+const detailFromSummary = (summary: OfferSummary): OfferDetail => ({
+  id: summary.id,
+  title: summary.title,
+  description: OFFER_DESCRIPTIONS[summary.id] ?? 'A comfortable stay with everything you need for a great trip.',
+  pricePerNight: summary.pricePerNight,
+  maxGuests: summary.maxGuests,
+  rooms: summary.rooms,
+  bathrooms: summary.bathrooms,
+  singleBeds: summary.singleBeds,
+  doubleBeds: summary.doubleBeds,
+  sofas: summary.sofas,
+  addressCity: summary.addressCity,
+  addressCountry: summary.addressCountry,
+  addressLatitude: summary.addressLatitude,
+  addressLongitude: summary.addressLongitude,
+  fullAddress: summary.fullAddress,
+  amenities: summary.amenities,
+  photos: buildPhotosForOffer(summary.id, `offer${summary.id}`),
+  offerType: summary.offerType,
+  rating: 4.2 + ((summary.id * 7) % 8) / 10,
+  reviewsCount: 12 + ((summary.id * 13) % 40),
+  host: OFFER_HOSTS[summary.id],
+});
+
+export const mockOfferDetails: OfferDetail[] = mockOffers.map(detailFromSummary);
+
 
